@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import App2a from "./App2a";
 import Exercise21 from "./Exercise21";
+import Exercise22 from "./Exercise22";
 
 const notes = [
 	{
@@ -28,8 +29,6 @@ const notes = [
 ];
 
 const root = createRoot(document.getElementById("root"));
-root.render(<Exercise21 />);
-
-// const root = ReactDOM.createRoot(document.getElementById("root"));
-// root.render(<App2a notes={notes} />, document.getElementById("root"));
-// ReactDOM.render(<Exercise21 />, document.getElementById("root"));
+// root.render(<Exercise21 />);
+// root.render(<App2a notes={notes} />);
+root.render(<Exercise22 />);
