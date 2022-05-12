@@ -6,6 +6,9 @@ import App from "./App";
 import App2a from "./App2a";
 import Exercise21 from "./Exercise21";
 import Exercise22 from "./Exercise22";
+import DataForCountries from "./DataForCountries";
+
+import axios from "axios";
 
 const notes = [
 	{
@@ -27,8 +30,13 @@ const notes = [
 		important: true,
 	},
 ];
+// axios.get("http://localhost:3001/notes").then((response) => {
+// 	const notes = response.data;
+// 	console.log(notes);
+// });
 
 const root = createRoot(document.getElementById("root"));
 // root.render(<Exercise21 />);
-// root.render(<App2a notes={notes} />);
-root.render(<Exercise22 />);
+// root.render(<App2a />);
+// root.render(<Exercise22 />);
+root.render(<DataForCountries />);

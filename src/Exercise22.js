@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const Filter = ({ filterText, filterTextChange }) => {
 	return (
@@ -43,9 +44,15 @@ const Persons = (props) => {
 };
 
 const Exercise22 = () => {
-	const [persons, setPersons] = useState([
-		{ name: "Arto Hellas", number: 15622540029 },
-	]);
+	const [persons, setPersons] = useState([]);
+
+	useEffect(() => {
+		console.log("effect");
+		axios.get("http://localhost:3001/persons").then((response) => {
+			console.log("fulfill");
+			setPersons(response.data);
+		});
+	}, []);
 
 	const [newName, setNewName] = useState("");
 	const [newNumber, setNewNumber] = useState("");
