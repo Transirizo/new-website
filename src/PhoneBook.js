@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Service from "./services/phonebook";
 
 const Filter = ({ filterText, filterTextChange }) => {
 	return (
@@ -36,21 +37,21 @@ const Persons = (props) => {
 				)
 				.map((person) => (
 					<p key={person.name}>
-						{person.name} {person.number}
+						{person.name} {person.number}{" "}
+						<button onClick={() => props.handleDelete(person)}>delete</button>
 					</p>
 				))}
 		</div>
 	);
 };
 
-const Exercise22 = () => {
+const PhoneBook = () => {
 	const [persons, setPersons] = useState([]);
-
 	useEffect(() => {
 		console.log("effect");
-		axios.get("http://localhost:3001/persons").then((response) => {
+		Service.getAll().then((initialPhoneBook) => {
 			console.log("fulfill");
-			setPersons(response.data);
+			setPersons(initialPhoneBook);
 		});
 	}, []);
 
@@ -72,10 +73,26 @@ const Exercise22 = () => {
 
 	const add = (event) => {
 		event.preventDefault();
-
-		if (persons.find((element) => element.name === newName)) {
+		const nowPerson = persons.find((element) => element.name === newName);
+		if (nowPerson) {
 			console.log("same name!");
-			alert(`${newName} is already added to phonebook`);
+			if (
+				window.confirm(
+					`${newName} is already added to phonebook, replace the old number wiht a new one?`
+				)
+			) {
+				const changePerson = {
+					...nowPerson,
+					number: newNumber,
+				};
+				Service.update(nowPerson.id, changePerson).then((newPerson) => {
+					setPersons(
+						persons.map((person) =>
+							person.id !== nowPerson.id ? person : newPerson
+						)
+					);
+				});
+			}
 			setNewName("");
 			setNewNumber("");
 			return;
@@ -86,9 +103,18 @@ const Exercise22 = () => {
 			number: newNumber,
 		};
 
-		setPersons(persons.concat(newNameObject));
-		setNewName("");
-		setNewNumber("");
+		Service.create(newNameObject).then((newContact) => {
+			setPersons(persons.concat(newContact));
+			setNewName("");
+			setNewNumber("");
+		});
+	};
+
+	const handleDelete = (props) => {
+		if (window.confirm(`Delete ${props.name} ?`)) {
+			const newPersons = persons.filter((person) => person.id !== props.id);
+			Service.deletePerson(props.id).then(() => setPersons(newPersons));
+		}
 	};
 
 	return (
@@ -107,9 +133,13 @@ const Exercise22 = () => {
 				numberChange={handleInputNumberChange}
 			/>
 			<h3>Numbers</h3>
-			<Persons persons={persons} filterText={filterText} />
+			<Persons
+				persons={persons}
+				filterText={filterText}
+				handleDelete={handleDelete}
+			/>
 		</div>
 	);
 };
 
-export default Exercise22;
+export default PhoneBook;
