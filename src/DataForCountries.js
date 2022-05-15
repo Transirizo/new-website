@@ -1,4 +1,3 @@
-import { wait } from "@testing-library/user-event/dist/utils";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
@@ -25,7 +24,6 @@ const Country = ({ country }) => {
 	const picture = country.flag;
 	const api_key = process.env.REACT_APP_API_KEY;
 	const [weather, setWeather] = useState({});
-	const [deg, setDeg] = useState();
 	var mb = (p) => (o) => p.map((c) => (o = (o || {})[c])) && o;
 	const lat = country.latlng[0];
 	const lon = country.latlng[1];
