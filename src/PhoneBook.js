@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Service from "./services/phonebook";
+import Notification from "./components/Notification";
 
 const Filter = ({ filterText, filterTextChange }) => {
 	return (
@@ -19,7 +20,7 @@ const Add = (props) => {
 				number: <input onChange={props.numberChange} value={props.number} />
 			</div>
 			<div>
-				<button type="submit">add</button>
+				<button type="submit">add/update</button>
 			</div>
 		</form>
 	);
@@ -57,6 +58,8 @@ const PhoneBook = () => {
 	const [newName, setNewName] = useState("");
 	const [newNumber, setNewNumber] = useState("");
 	const [filterText, setFilterText] = useState("");
+	const [message, setMessage] = useState(null);
+	const [err, setErr] = useState(false);
 
 	const handleInputNameChange = (event) => {
 		setNewName(event.target.value);
@@ -72,6 +75,19 @@ const PhoneBook = () => {
 
 	const add = (event) => {
 		event.preventDefault();
+		if (newName === "" || newNumber === "") {
+			setNewNumber("");
+			setMessage(
+				"Add/Update require name and number for the person in phonebook"
+			);
+			setErr(true);
+			setTimeout(() => {
+				setMessage(null);
+				setErr(false);
+			}, 5000);
+			return;
+		}
+
 		const nowPerson = persons.find((element) => element.name === newName);
 		if (nowPerson) {
 			console.log("same name!");
@@ -84,13 +100,29 @@ const PhoneBook = () => {
 					...nowPerson,
 					number: newNumber,
 				};
-				Service.update(nowPerson.id, changePerson).then((newPerson) => {
-					setPersons(
-						persons.map((person) =>
-							person.id !== nowPerson.id ? person : newPerson
-						)
-					);
-				});
+				Service.update(nowPerson.id, changePerson)
+					.then((newPerson) => {
+						setPersons(
+							persons.map((person) =>
+								person.id !== nowPerson.id ? person : newPerson
+							)
+						);
+						setMessage(`${newName}'s number had been updated`);
+						setTimeout(() => {
+							setMessage(null);
+						}, 3000);
+					})
+					.catch((error) => {
+						setMessage(
+							`Information of ${newName} had already been removed from server`
+						);
+						setErr(true);
+						setTimeout(() => {
+							setMessage(null);
+							setErr(false);
+						}, 5000);
+						setPersons(persons.filter((person) => person.name !== newName));
+					});
 			}
 			setNewName("");
 			setNewNumber("");
@@ -106,6 +138,10 @@ const PhoneBook = () => {
 			setPersons(persons.concat(newContact));
 			setNewName("");
 			setNewNumber("");
+			setMessage(`You have added ${newContact.name}`);
+			setTimeout(() => {
+				setMessage(null);
+			}, 3000);
 		});
 	};
 
@@ -113,12 +149,17 @@ const PhoneBook = () => {
 		if (window.confirm(`Delete ${props.name} ?`)) {
 			const newPersons = persons.filter((person) => person.id !== props.id);
 			Service.deletePerson(props.id).then(() => setPersons(newPersons));
+			setMessage(`You have deleted ${props.name}`);
+			setTimeout(() => {
+				setMessage(null);
+			}, 3000);
 		}
 	};
 
 	return (
 		<div>
 			<h2>Phonebook</h2>
+			<Notification err={err} message={message} />
 			<Filter
 				filterText={filterText}
 				filterTextChange={handleFilterTextChange}
