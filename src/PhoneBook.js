@@ -95,6 +95,7 @@ const PhoneBook = () => {
 		const nowPerson = persons.find((element) => element.name === newName);
 		if (nowPerson) {
 			console.log("same name!");
+
 			if (nowPerson.number === newNumber) {
 				setErr(true);
 				setMessage(`${newName} is already added to phonebook`);
