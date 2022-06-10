@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Service from "./services/phonebook";
 import Notification from "./components/Notification";
+import axios from "axios";
 
 const Filter = ({ filterText, filterTextChange }) => {
 	return (
@@ -49,10 +50,13 @@ const PhoneBook = () => {
 	const [persons, setPersons] = useState([]);
 	useEffect(() => {
 		console.log("effect");
-		Service.getAll().then((initialPhoneBook) => {
-			console.log("fulfill");
-			setPersons(initialPhoneBook);
-		});
+		// Service.getAll().then((initialPhoneBook) => {
+		// 	console.log("fulfill");
+		// 	setPersons(initialPhoneBook);
+		// });
+		axios
+			.get("http://localhost:3001/api/persons")
+			.then((res) => setPersons(res.data));
 	}, []);
 
 	const [newName, setNewName] = useState("");
@@ -91,6 +95,17 @@ const PhoneBook = () => {
 		const nowPerson = persons.find((element) => element.name === newName);
 		if (nowPerson) {
 			console.log("same name!");
+			if (nowPerson.number === newNumber) {
+				setErr(true);
+				setMessage(`${newName} is already added to phonebook`);
+				setTimeout(() => {
+					setMessage(null);
+					setErr(false);
+				}, 5000);
+				setNewName("");
+				setNewNumber("");
+				return;
+			}
 			if (
 				window.confirm(
 					`${newName} is already added to phonebook, replace the old number wiht a new one?`
@@ -113,15 +128,12 @@ const PhoneBook = () => {
 						}, 3000);
 					})
 					.catch((error) => {
-						setMessage(
-							`Information of ${newName} had already been removed from server`
-						);
+						setMessage(error.response.data.error);
 						setErr(true);
 						setTimeout(() => {
 							setMessage(null);
 							setErr(false);
 						}, 5000);
-						setPersons(persons.filter((person) => person.name !== newName));
 					});
 			}
 			setNewName("");
@@ -134,15 +146,26 @@ const PhoneBook = () => {
 			number: newNumber,
 		};
 
-		Service.create(newNameObject).then((newContact) => {
-			setPersons(persons.concat(newContact));
-			setNewName("");
-			setNewNumber("");
-			setMessage(`You have added ${newContact.name}`);
-			setTimeout(() => {
-				setMessage(null);
-			}, 3000);
-		});
+		Service.create(newNameObject)
+			.then((newContact) => {
+				setPersons(persons.concat(newContact));
+				setNewName("");
+				setNewNumber("");
+				setMessage(`You have added ${newContact.name}`);
+				setTimeout(() => {
+					setMessage(null);
+				}, 3000);
+			})
+			.catch((error) => {
+				setErr(true);
+				setMessage(error.response.data.error);
+				console.log(error.response.data);
+				setTimeout(() => {
+					setErr(false);
+					setMessage(null);
+				}, 5000);
+				return;
+			});
 	};
 
 	const handleDelete = (props) => {

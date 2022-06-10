@@ -16,7 +16,7 @@ import Exercise21 from "./Exercise21";
 // });
 
 const root = createRoot(document.getElementById("root"));
-// root.render(<PhoneBook />);
-root.render(<App2a />);
+root.render(<PhoneBook />);
+// root.render(<App2a />);
 // root.render(<Exercise21 />);
 // root.render(<DataForCountries />);
